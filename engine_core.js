@@ -1,14 +1,19 @@
 const maxAPI = require('max-api');
 
 let coordsArray = [];
+const LEFT = "left";
+const RIGHT = "right";
+
 
 const addPoints = (pointsCount) => {
   for (let index = coordsArray.length + 1; index < pointsCount; index++) {
     const x = Math.random() * (Math.round(Math.random()) * 2 - 1);
     const y = Math.random() * (Math.round(Math.random()) * 2 - 1);
+    const angle = Math.tan(x / y);
     coordsArray.push({
       x,
-      y
+      y,
+      angle
     });
     maxAPI.outlet(`xyz`, index, x , y, 0);
   }
@@ -46,27 +51,34 @@ const shuffleMovement = () => {
   }
 }
 
-const spinMovement = () => {
+const spinMovement = (direction) => {
   for (let index = 0; index < coordsArray.length; index++) {
-    let { x, y } = coordsArray[index];
-    let newX = x + (Math.cos(22.5) * 1);
-    let newY = y + (Math.sin(22.5) * 1);
+    let { x, y, angle } = coordsArray[index];
+    const radius = Math.sqrt(((x - 0) ** 2) + ((y - 0) ** 2));
+    const angleInRadians = 22.5 * Math.PI / 180;
+    angle += angleInRadians;
+    if (direction === LEFT) {
+      x = Math.cos(angle) * radius;
+      y = Math.sin(angle) * radius;
+    } else {
+      x = Math.sin(angle) * radius;
+      y = Math.cos(angle) * radius;
+    }
 
-    if (newX >= -2 && newX <= 2) {
-      x = newX;
-    }
-    if (newY >= -2 && newY <= 2) {
-      y = newY;
-    }
     maxAPI.outlet(`xyz`, index + 1, x , y, 0);
-    coordsArray[index] = { x, y };
+    coordsArray[index] = { x, y, angle };
   }
+}
+
+const pulsMovement = () => {
+
 }
 
 const handlers = {
   "number": addRemovePoint,
   "shufflemovement": shuffleMovement,
   "spinmovement": spinMovement,
+  "puls": pulsMovement
 };
 
 maxAPI.addHandlers(handlers);
